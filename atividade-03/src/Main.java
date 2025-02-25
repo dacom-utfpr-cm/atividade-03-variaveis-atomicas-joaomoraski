@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Teste do Gerador de Números Sequenciais Não Bloqueante:");
         NonBlocking counter = new NonBlocking();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             System.out.println("Número sequencial: " + counter.getNext());
         }
 

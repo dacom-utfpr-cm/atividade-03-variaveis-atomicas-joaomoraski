@@ -20,21 +20,21 @@ public class NonBlockingStack<T> {
         Node<T> newHead = new Node<>(t);
         Node<T> currentHead;
         do {
-            currentHead = head.get();
-            newHead.next = currentHead;
-        } while (!head.compareAndSet(currentHead, newHead));
+            currentHead = head.get(); // Pega o valor da head
+            newHead.next = currentHead; // Faz a head atual apontar para o newHead
+        } while (!head.compareAndSet(currentHead, newHead)); // Tenta trocar o currentHead e o newHead de forma atomica
     }
 
     public T pop() {
         Node<T> currentHead;
         Node<T> nextHead;
         do {
-            currentHead = head.get();
+            currentHead = head.get(); // Peg a head atual, se for null é pq nao tem nada
             if (currentHead == null) {
                 return null;
             }
-            nextHead = currentHead.next;
-        } while (!head.compareAndSet(currentHead, nextHead));
+            nextHead = currentHead.next; // A proxima head é obtida da sequencia da current
+        } while (!head.compareAndSet(currentHead, nextHead)); // Tenta trocar o valor seguinte pelo valor atual, ate conseguir
         return currentHead.value;
     }
 }

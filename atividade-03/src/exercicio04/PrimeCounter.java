@@ -1,9 +1,7 @@
 package exercicio04;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrimeCounter {
     public static boolean isPrime(int n) {
@@ -15,56 +13,74 @@ public class PrimeCounter {
     }
 
     public static int countPrimesAtomic(int start, int end, int threads) throws InterruptedException {
-        AtomicInteger count = new AtomicInteger(0);
-        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        AtomicCounter count = new AtomicCounter();
+        List<Thread> threadList = new ArrayList<>();
 
-        for (int i = start; i <= end; i++) {
-            int num = i;
-            executor.submit(() -> {
-                if (isPrime(num)) {
-                    count.incrementAndGet();
+        for (int t = 0; t < threads; t++) {
+            final int threadId = t;
+            Thread thread = new Thread(() -> {
+                for (int i = start + threadId; i <= end; i += threads) {
+                    if (isPrime(i)) {
+                        count.increment();
+                    }
                 }
             });
+            threadList.add(thread);
+            thread.start();
         }
 
-        executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        return count.get();
+        for (Thread thread : threadList) {
+            thread.join();
+        }
+
+        return count.getCount();
     }
 
     public static int countPrimesSyncMethod(int start, int end, int threads) throws InterruptedException {
-        final Counter counter = new Counter();
-        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        Counter counter = new Counter();
+        List<Thread> threadList = new ArrayList<>();
 
-        for (int i = start; i <= end; i++) {
-            int num = i;
-            executor.submit(() -> {
-                if (isPrime(num)) {
-                    counter.incrementSyncMethod();
+        for (int t = 0; t < threads; t++) {
+            final int threadId = t;
+            Thread thread = new Thread(() -> {
+                for (int i = start + threadId; i <= end; i += threads) {
+                    if (isPrime(i)) {
+                        counter.incrementSyncMethod();
+                    }
                 }
             });
+            threadList.add(thread);
+            thread.start();
         }
 
-        executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        for (Thread thread : threadList) {
+            thread.join();
+        }
+
         return counter.getCount();
     }
 
     public static int countPrimesSyncBlock(int start, int end, int threads) throws InterruptedException {
-        final Counter counter = new Counter();
-        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        Counter counter = new Counter();
+        List<Thread> threadList = new ArrayList<>();
 
-        for (int i = start; i <= end; i++) {
-            int num = i;
-            executor.submit(() -> {
-                if (isPrime(num)) {
-                    counter.incrementSyncBlock();
+        for (int t = 0; t < threads; t++) {
+            final int threadId = t;
+            Thread thread = new Thread(() -> {
+                for (int i = start + threadId; i <= end; i += threads) {
+                    if (isPrime(i)) {
+                        counter.incrementSyncBlock();
+                    }
                 }
             });
+            threadList.add(thread);
+            thread.start();
         }
 
-        executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        for (Thread thread : threadList) {
+            thread.join();
+        }
+
         return counter.getCount();
     }
 
@@ -79,6 +95,18 @@ public class PrimeCounter {
             synchronized (this) {
                 count++;
             }
+        }
+
+        public int getCount() {
+            return count;
+        }
+    }
+
+    static class AtomicCounter {
+        private int count = 0;
+
+        public synchronized void increment() {
+            count++;
         }
 
         public int getCount() {

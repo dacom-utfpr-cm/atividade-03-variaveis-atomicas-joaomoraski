@@ -24,14 +24,14 @@ public class NonBlockingQueue<T> {
     public void enqueue(T value) {
         Node<T> newNode = new Node<>(value);
         while (true) {
-            Node<T> currentTail = tail.get();
-            Node<T> tailNext = currentTail.next.get();
+            Node<T> currentTail = tail.get();  // Pega a tail atual
+            Node<T> tailNext = currentTail.next.get(); // pega a tail seguinte
 
-            if (currentTail == tail.get()) {
-                if (tailNext != null) {
-                    tail.compareAndSet(currentTail, tailNext);
-                } else if (currentTail.next.compareAndSet(null, newNode)) {
-                    tail.compareAndSet(currentTail, newNode);
+            if (currentTail == tail.get()) { // Verifica se ainda é a mesma, para caso de alguem ter alterado ja
+                if (tailNext != null) { // Se a proxima nao for nula, significa que alguem alterou a seguinte, entao
+                    tail.compareAndSet(currentTail, tailNext); // precisamos trocar a currentTail para tailNext
+                } else if (currentTail.next.compareAndSet(null, newNode)) { // Se não, ele adiciona o novo nó no fim
+                    tail.compareAndSet(currentTail, newNode); // Entao troca o current para ser o novo no
                     return;
                 }
             }

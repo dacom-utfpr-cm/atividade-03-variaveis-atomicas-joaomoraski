@@ -3,7 +3,7 @@ package exercicio01;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class NonBlocking {
-    private AtomicLong counter = new AtomicLong(0);
+    private AtomicLong counter = new AtomicLong(5);
 
     public long getNext() {
         long current, next;
